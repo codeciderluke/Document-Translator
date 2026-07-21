@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light theme (default). Values are RGB channels for Tailwind alpha support. */
+  :root {
+    --c-base: 244 245 248;
+    --c-surface: 255 255 255;
+    --c-surface-2: 238 240 244;
+    --c-border: 223 226 232;
+    --c-content: 28 32 44;
+    --c-muted: 100 108 122;
+    --c-accent: 79 70 229;
+    --c-accent-hover: 67 56 202;
+    --c-on-accent: 255 255 255;
+    --c-danger: 220 38 38;
+    --c-success: 22 163 74;
+  }
+
+  /* Dark theme. */
+  .dark {
+    --c-base: 18 18 18;
+    --c-surface: 26 26 29;
+    --c-surface-2: 35 35 39;
+    --c-border: 46 46 51;
+    --c-content: 230 230 230;
+    --c-muted: 154 154 162;
+    --c-accent: 124 140 248;
+    --c-accent-hover: 143 157 250;
+    --c-on-accent: 20 21 42;
+    --c-danger: 248 113 113;
+    --c-success: 74 222 128;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-base text-content antialiased;
+    font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Indeterminate progress bar animation. */
+@keyframes indeterminate {
+  0% {
+    left: -40%;
+    width: 40%;
+  }
+  50% {
+    width: 55%;
+  }
+  100% {
+    left: 100%;
+    width: 40%;
+  }
+}
+.bar-indeterminate {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 9999px;
+  animation: indeterminate 1.2s ease-in-out infinite;
+}
+
+/* Print: show only the translated result, hide app chrome. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .print-area,
+  .print-area * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+}

@@ -1,0 +1,49 @@
+# ── Public repo policy ────────────────────────────────────────────────
+# Only the frontend source is published. The backend is distributed as a
+# prebuilt binary via GitHub Releases, so its source, build tooling, and
+# full-stack/internal files are kept out of the repository.
+/backend/
+/release/
+/release_files/
+/build_release.bat
+/run.bat
+/docker-compose.yml
+/Makefile
+/.env.example
+/CLAUDE.md
+/document_translation_service_development_spec.md
+# Published in this repo: frontend/, docs/, README.md, LICENSE,
+# THIRD_PARTY_LICENSES.md
+# ─────────────────────────────────────────────────────────────────────
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.db
+*.db-wal
+*.db-shm
+storage_data/
+build/
+*.spec
+
+# Node
+node_modules/
+dist/
+.env
+
+# TypeScript build artifacts
+*.tsbuildinfo
+/frontend/vite.config.js
+/frontend/vite.config.d.ts
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
