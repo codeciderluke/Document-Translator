@@ -14,6 +14,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
+    Image,
     ListFlowable,
     ListItem,
     PageBreak,
@@ -34,7 +35,19 @@ def _styles():
     ss.add(ParagraphStyle("H2", parent=ss["Heading2"], fontSize=12.5, leading=16, spaceBefore=8, spaceAfter=3))
     ss.add(ParagraphStyle("Body", parent=ss["Normal"], fontSize=10.5, leading=15, spaceAfter=4))
     ss.add(ParagraphStyle("MBullet", parent=ss["Normal"], fontSize=10.5, leading=15))
+    ss.add(ParagraphStyle("Caption", parent=ss["Normal"], fontSize=8.5, leading=11,
+                          alignment=TA_CENTER, textColor=colors.HexColor("#777777"), spaceBefore=3))
     return ss
+
+
+def _screenshot(name: str, ss, caption: str):
+    """Full-width screenshot flowables, skipped if the image is missing."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "images", name)
+    if not os.path.exists(path):
+        return []
+    width = 165 * mm
+    return [Spacer(1, 3 * mm), Image(path, width=width, height=width * 900 / 1440),
+            Paragraph(caption, ss["Caption"]), Spacer(1, 3 * mm)]
 
 
 def _bullets(items, style):
@@ -72,7 +85,7 @@ def build() -> None:
     s += [Spacer(1, 3 * mm)]
     s += [Paragraph("Mutual translation between English, Japanese, Korean, and Chinese", ss["Sub"])]
     s += [Spacer(1, 40 * mm)]
-    s += [Paragraph("Version 0.1.0 &nbsp;·&nbsp; Designed by Codecider Lab", ss["Sub"])]
+    s += [Paragraph("Version 1.0.0 &nbsp;·&nbsp; Designed by Codecider Lab", ss["Sub"])]
     s += [PageBreak()]
 
     # 1. Overview
@@ -83,6 +96,8 @@ def build() -> None:
         "You can paste text or upload a document, edit the translation, and save it as TXT, DOCX, "
         "or PDF, or print it. The app runs entirely on your own computer; only the translation "
         "step uses an online service, so an internet connection is required for translation.", ss["Body"])]
+    s += _screenshot("screenshot-dark.png", ss,
+                     "The main screen: source text on the left, editable translation on the right.")
 
     # 2. Getting started
     s += [Paragraph("2. Getting Started", ss["H1"])]
@@ -100,7 +115,7 @@ def build() -> None:
     s += [Paragraph("Open <b>Text Translation</b> from the sidebar.", ss["Body"])]
     s += [_bullets([
         "Choose the <b>source</b> language (or Auto-detect) and the <b>target</b> language. "
-        "Use the swap button (⇄) to reverse them.",
+        "Use the swap button between the two selectors to reverse them.",
         "Type or paste your text on the left. The character count is shown at the bottom.",
         "Click <b>Translate</b>. A progress bar appears while translating.",
         "The result appears on the right and can be edited directly; edits are saved automatically.",
@@ -146,6 +161,7 @@ def build() -> None:
     s += [Paragraph(
         "Use the theme toggle at the bottom of the sidebar to switch between dark and light mode. Your "
         "choice is remembered.", ss["Body"])]
+    s += _screenshot("screenshot-light.png", ss, "The same screen in light theme.")
 
     # 7. Notes & troubleshooting
     s += [Paragraph("7. Notes & Troubleshooting", ss["H1"])]

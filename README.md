@@ -5,6 +5,10 @@ Paste text or upload a document, edit the result, then save it as TXT/DOCX/PDF o
 
 Runs entirely on your machine — no installation and no API key required.
 
+![Document Translator — main screen](docs/images/screenshot-dark.png)
+
+<sub>Source text on the left, editable translation on the right. Light theme is also available.</sub>
+
 > **About this repository:** this repo contains the **frontend source**. The
 > backend is distributed as a **prebuilt local binary** (closed source) attached
 > to [Releases](../../releases). The binary bundles the built frontend, so it

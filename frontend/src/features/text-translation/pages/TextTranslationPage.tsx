@@ -88,7 +88,9 @@ export function TextTranslationPage() {
         </div>
         <div>
           <h1 className="text-lg font-semibold text-content">Document Translator</h1>
-          <p className="text-xs text-muted">Translate between English, Japanese, and Korean</p>
+          <p className="text-xs text-muted">
+            Translate between English, Japanese, Korean, and Chinese
+          </p>
         </div>
       </header>
 

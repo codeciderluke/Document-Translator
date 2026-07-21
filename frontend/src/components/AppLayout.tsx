@@ -25,7 +25,7 @@ export function AppLayout() {
           </div>
           <div>
             <div className="text-sm font-semibold text-content">Document Translator</div>
-            <div className="text-[11px] text-muted">EN · JA · KO</div>
+            <div className="text-[11px] text-muted">EN · JA · KO · ZH</div>
           </div>
         </div>
         <nav className="flex flex-col gap-1 px-3">
