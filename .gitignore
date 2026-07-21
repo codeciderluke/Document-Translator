@@ -4,8 +4,9 @@
 # full-stack/internal files are kept out of the repository.
 /backend/
 /release/
-/release_files/
 /build_release.bat
+# note: release_files/ (run.bat, README.txt for end users) IS published —
+# the Release workflow packages them into the distributed archive.
 /run.bat
 /docker-compose.yml
 /Makefile

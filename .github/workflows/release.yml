@@ -1,0 +1,107 @@
+# Builds the standalone Windows binary and publishes it to Releases.
+#
+# The backend source is intentionally NOT in this public repository, so this
+# workflow pulls it from a private repo. One-time setup:
+#
+#   1. Push the backend/ folder to a private repository.
+#   2. Repo → Settings → Secrets and variables → Actions:
+#        Variable  BACKEND_REPO   e.g. codeciderluke/document-translator-backend
+#        Secret    BACKEND_TOKEN  a PAT with read access to that private repo
+#   3. Tag a release:  git tag v1.0.1 && git push origin v1.0.1
+#
+# Without that setup this workflow is simply never triggered (tags only).
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows binary and publish
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout frontend + docs (this repo)
+        uses: actions/checkout@v4
+
+      - name: Checkout backend (private)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.BACKEND_REPO }}
+          token: ${{ secrets.BACKEND_TOKEN }}
+          path: backend-src
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        run: npm ci && npm run build
+        working-directory: frontend
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: backend-src
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install pyinstaller
+
+      - name: Bundle frontend into the backend
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force backend-src\static -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path backend-src\static | Out-Null
+          Copy-Item -Recurse -Force frontend\dist\* backend-src\static\
+
+      - name: Backend tests
+        working-directory: backend-src
+        run: pytest -q
+
+      - name: Build standalone binary
+        shell: pwsh
+        working-directory: backend-src
+        run: |
+          pyinstaller --noconfirm --name document-translator-server --icon app_icon.ico `
+            --collect-submodules app `
+            --collect-all pdfminer --collect-all pypdfium2 --collect-all reportlab `
+            --collect-all deep_translator --collect-all PIL `
+            --hidden-import uvicorn.loops.auto `
+            --hidden-import uvicorn.protocols.http.auto `
+            --hidden-import uvicorn.protocols.http.h11_impl `
+            --hidden-import uvicorn.protocols.websockets.auto `
+            --hidden-import uvicorn.lifespan.on `
+            --hidden-import uvicorn.lifespan.off `
+            --hidden-import uvicorn.logging `
+            --add-data "static;static" `
+            server_main.py
+
+      - name: Assemble release archive
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release | Out-Null
+          Copy-Item -Recurse backend-src\dist\document-translator-server release\
+          Copy-Item release_files\run.bat    release\run.bat
+          Copy-Item release_files\README.txt release\README.txt
+          Copy-Item LICENSE                  release\LICENSE.txt
+          Copy-Item THIRD_PARTY_LICENSES.md  release\
+          Copy-Item docs\USER_MANUAL.pdf     release\
+          $tag = "${{ github.ref_name }}"
+          if (-not $tag.StartsWith("v")) { $tag = "manual" }
+          Compress-Archive -Path release\* -DestinationPath "Document-Translator-$tag-win-x64.zip"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Document-Translator-*.zip
+          generate_release_notes: true
